@@ -6,16 +6,20 @@ let
     overlays = import ./nix/overlays.nix;
   };
 
-  withEnv = fn: { system ? builtins.currentSystem, version ? "0.6.4" }: (
+  withEnv = fn: { system ? builtins.currentSystem, version ? "latest" }: (
     let
       allVersions = pkgs.dfinity-sdk {
         inherit system;
         acceptLicenseAgreement = true;
       };
-      key = builtins.replaceStrings ["."] ["_"] version;
+      resolvedVersion =
+        if version == "latest"
+        then allVersions.latest.version
+        else version;
+      key = builtins.replaceStrings ["."] ["_"] resolvedVersion;
     in
       fn {
-        dir = "$HOME/.cache/dfinity/versions/${version}";
+        dir = "$HOME/.cache/dfinity/versions/${resolvedVersion}";
         sdk = allVersions.${key};
       }
   );

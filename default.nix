@@ -50,6 +50,7 @@ let
           ln -s $out/cache/replica $out/bin/replica
         '';
         meta.license = self.stdenv.lib.licenses.unfree;
+        inherit system version;
       }
   );
 
