@@ -7,7 +7,7 @@ $ nix-shell
 ```
 
 ```sh
-$ nix-shell --argstr version 0.6.4
+$ nix-shell --argstr version 0.6.21
 ```
 
 ```sh

@@ -5,11 +5,12 @@ let
     acceptLicenseAgreement = true;
   };
 
-  shell = { ... }@args: (dfinitySdk.shell args).overrideAttrs (oldAttrs: {
-    nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [
-      pkgs.nodejs-12_x
-    ];
-  });
+  shell = { version ? "0.7.0-beta.8", ... }@args:
+    (dfinitySdk.shell (args // { version = version; })).overrideAttrs (oldAttrs: {
+      nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [
+        pkgs.nodejs-12_x
+      ];
+    });
 in
   {
     inherit shell;
