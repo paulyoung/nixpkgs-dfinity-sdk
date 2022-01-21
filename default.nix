@@ -54,7 +54,6 @@ let
               ln -s $out/cache/moc $out/bin/moc
               ln -s $out/cache/replica $out/bin/replica
             '';
-            meta.license = self.lib.licenses.unfree;
             system = sdkSystem;
             inherit version;
           }
@@ -91,37 +90,11 @@ let
       # https://sdk.dfinity.org/manifest.json
       versions = {
         latest = dfinity-sdk-0_6_21;
-        "0_6_21" = dfinity-sdk-0_6_21;
-        "0_7_0-beta_8" = dfinity-sdk-0_7_0-beta_8;
+        "0.6.21" = dfinity-sdk-0_6_21;
+        "0.7.0-beta.8" = dfinity-sdk-0_7_0-beta_8;
       };
-
-      withEnv = fn: { system ? sdkSystem, version ? "latest", ... }: (
-        let
-          resolvedVersion =
-            if version == "latest"
-            then versions.latest.version
-            else version;
-          key = builtins.replaceStrings ["."] ["_"] resolvedVersion;
-        in
-          fn {
-            dir = "$HOME/.cache/dfinity/versions/${resolvedVersion}";
-            sdk = versions.${key};
-          }
-      );
-
-      shell = withEnv ({ dir, sdk }: self.mkShell {
-        nativeBuildInputs = [
-          sdk
-        ];
-        shellHook = ''
-          export HOME=$TMP
-          chmod -R --silent 755 ${dir}
-          mkdir -p ${dir}
-          cp --no-clobber --preserve=mode,timestamps -R ${sdk}/cache/. ${dir}
-        '';
-      });
     in
-      versions // { inherit makeVersion shell; }
+      versions // { inherit makeVersion; }
   );
 in
   {
