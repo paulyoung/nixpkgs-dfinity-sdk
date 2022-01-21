@@ -54,7 +54,7 @@ let
               ln -s $out/cache/moc $out/bin/moc
               ln -s $out/cache/replica $out/bin/replica
             '';
-            meta.license = self.stdenv.lib.licenses.unfree;
+            meta.license = self.lib.licenses.unfree;
             system = sdkSystem;
             inherit version;
           }
@@ -63,11 +63,11 @@ let
       dfinity-sdk-0_6_21 = makeVersion {
         systems = {
           "x86_64-darwin" = {
-            # sha256 = self.stdenv.lib.fakeSha256;
+            # sha256 = self.lib.fakeSha256;
             sha256 = "0i92rwk5x13q7f7nyrgc896w2mlbk63lkgmlrvmyciwbggjiv4pc";
           };
           "x86_64-linux" = {
-            # sha256 = self.stdenv.lib.fakeSha256;
+            # sha256 = self.lib.fakeSha256;
             sha256 = "06akn065x7vaqy56v5jn551zbw5a0wfxvn13q0hpskm2iwrwrpnb";
           };
         };
@@ -77,11 +77,11 @@ let
       dfinity-sdk-0_7_0-beta_8 = makeVersion {
         systems = {
           "x86_64-darwin" = {
-            # sha256 = self.stdenv.lib.fakeSha256;
+            # sha256 = self.lib.fakeSha256;
             sha256 = "19zq8n5ahqmbyp1bvhzv06zfaimxyfgzvanwfkf5px7gb1jcqf0m";
           };
           "x86_64-linux" = {
-            # sha256 = self.stdenv.lib.fakeSha256;
+            # sha256 = self.lib.fakeSha256;
             sha256 = "0nl29155076k23fx1j0zb92cr4p0dh8fk5cnjr67dy3nwlbygh3x";
           };
         };
@@ -95,7 +95,7 @@ let
         "0_7_0-beta_8" = dfinity-sdk-0_7_0-beta_8;
       };
 
-      withEnv = fn: { system ? sdkSystem, version ? "latest" }: (
+      withEnv = fn: { system ? sdkSystem, version ? "latest", ... }: (
         let
           resolvedVersion =
             if version == "latest"
