@@ -1,8 +1,8 @@
 let
   owner = "NixOS";
   repo = "nixpkgs";
-  rev = "20.03";
-  sha256 = "0182ys095dfx02vl2a20j1hz92dx3mfgz2a6fhn31bqlp1wa8hlq";
+  rev = "21.11";
+  sha256 = "162dywda2dvfj1248afxc45kcrg83appjd0nmdb541hl7rnncf02";
 in
   import (builtins.fetchTarball {
     inherit sha256;
