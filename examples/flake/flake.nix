@@ -11,8 +11,6 @@
   outputs = { self, nixpkgs, flake-utils, dfinity-sdk }:
     flake-utils.lib.eachDefaultSystem (
       system: let
-        legacyPkgs = nixpkgs.legacyPackages."${system}";
-
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
