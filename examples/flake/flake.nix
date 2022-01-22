@@ -1,0 +1,40 @@
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/21.11";
+    flake-utils.url = "github:numtide/flake-utils";
+    dfinity-sdk = {
+      url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      flake = false;
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, dfinity-sdk }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
+        legacyPkgs = nixpkgs.legacyPackages."${system}";
+
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            (final: prev: (import dfinity-sdk) final prev)
+          ];
+        };
+
+        dfinitySdk = (pkgs.dfinity-sdk {
+          acceptLicenseAgreement = true;
+          sdkSystem =
+            if system == "aarch64-darwin"
+            then "x86_64-darwin"
+            else system;
+        })."0.7.0-beta.8";
+      in
+        {
+          # `nix develop`
+          devShell = pkgs.mkShell {
+            buildInputs = [
+              dfinitySdk
+            ];
+          };
+        }
+    );
+}
