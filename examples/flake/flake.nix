@@ -24,7 +24,7 @@
             if system == "aarch64-darwin"
             then "x86_64-darwin"
             else system;
-        })."0.7.0-beta.8";
+        })."0.8.4";
       in
         {
           # `nix develop`
