@@ -8,6 +8,11 @@ let
     sdkSystem ? builtins.currentSystem
   }: (
     let
+      resolvedSystem =
+        if sdkSystem == "aarch64-darwin"
+        then "x86_64-darwin"
+        else sdkSystem;
+
       makeVersion = { systems, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
@@ -20,19 +25,19 @@ let
           ])
         else
           self.stdenv.mkDerivation {
-            name = "dfinity-sdk-${version}-${sdkSystem}";
+            name = "dfinity-sdk-${version}-${resolvedSystem}";
             src = self.fetchzip {
               sha256 =
-                if builtins.hasAttr sdkSystem systems
-                then systems.${sdkSystem}.sha256
-                else error ("unsupported system: " + sdkSystem);
+                if builtins.hasAttr resolvedSystem systems
+                then systems.${resolvedSystem}.sha256
+                else error ("unsupported system: " + resolvedSystem);
               stripRoot = false;
               url = builtins.concatStringsSep "/" [
                 "https://sdk.dfinity.org"
                 "downloads"
                 "dfx"
                 version
-                "${sdkSystem}"
+                "${resolvedSystem}"
                 "dfx-${version}.tar.gz"
               ];
             };
@@ -54,7 +59,7 @@ let
               ln -s $out/cache/moc $out/bin/moc
               ln -s $out/cache/replica $out/bin/replica
             '';
-            system = sdkSystem;
+            system = resolvedSystem;
             inherit version;
           }
       );
