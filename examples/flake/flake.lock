@@ -3,11 +3,11 @@
     "dfinity-sdk": {
       "flake": false,
       "locked": {
-        "lastModified": 1642815828,
-        "narHash": "sha256-COnyVzpxFTPd2buAJdc4/G2h4Ib7HNLntvzEPGL5WUo=",
+        "lastModified": 1644392970,
+        "narHash": "sha256-YydVOpp+6b4knmI+9/0nNU7FqoDTuGvD/mA/Pguh6uk=",
         "owner": "paulyoung",
         "repo": "nixpkgs-dfinity-sdk",
-        "rev": "105b274676cf324fcddcf672ac62d6b22db103af",
+        "rev": "8ac35f39398ca54888a86d55fb10a51d374f818d",
         "type": "github"
       },
       "original": {
@@ -18,11 +18,11 @@
     },
     "flake-utils": {
       "locked": {
-        "lastModified": 1642700792,
-        "narHash": "sha256-XqHrk7hFb+zBvRg6Ghl+AZDq03ov6OshJLiSWOoX5es=",
+        "lastModified": 1644229661,
+        "narHash": "sha256-1YdnJAsNy69bpcjuoKdOYQX0YxZBiCYZo4Twxerqv7k=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "846b2ae0fc4cc943637d3d1def4454213e203cba",
+        "rev": "3cecb5b042f7f209c56ffd8371b2711a290ec797",
         "type": "github"
       },
       "original": {
