@@ -67,11 +67,9 @@ let
       sdk-0_6_21 = makeVersion {
         systems = {
           "x86_64-darwin" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "0i92rwk5x13q7f7nyrgc896w2mlbk63lkgmlrvmyciwbggjiv4pc";
           };
           "x86_64-linux" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "06akn065x7vaqy56v5jn551zbw5a0wfxvn13q0hpskm2iwrwrpnb";
           };
         };
@@ -81,11 +79,9 @@ let
       sdk-0_7_0-beta_8 = makeVersion {
         systems = {
           "x86_64-darwin" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "19zq8n5ahqmbyp1bvhzv06zfaimxyfgzvanwfkf5px7gb1jcqf0m";
           };
           "x86_64-linux" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "0nl29155076k23fx1j0zb92cr4p0dh8fk5cnjr67dy3nwlbygh3x";
           };
         };
@@ -95,15 +91,27 @@ let
       sdk-0_8_4 = makeVersion {
         systems = {
           "x86_64-darwin" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "JJzZzUJtrgmKJdxXGVJedhP5t9maxh3YjIq1xhTcvfU=";
           };
           "x86_64-linux" = {
-            # sha256 = self.lib.fakeSha256;
             sha256 = "yht96jUJ8gTK5Ual1ofItyRBnQ+qIrbk0lOlefu/L7I=";
           };
         };
         version = "0.8.4";
+      };
+
+      sdk-0_9_2 = makeVersion {
+        systems = {
+          "x86_64-darwin" = {
+            # sha256 = self.lib.fakeSha256;
+            sha256 = "UITKzQ9XzlsyO4DU72Ah2VH8736eQeW8GL6hzJHTaYA=";
+          };
+          "x86_64-linux" = {
+            # sha256 = self.lib.fakeSha256;
+            sha256 = "41NP4AGp5Ve1Srm9a2jweOEEu6iKDGJEBr+SYtrqUSM=";
+          };
+        };
+        version = "0.9.2";
       };
 
       # https://sdk.dfinity.org/manifest.json
@@ -112,6 +120,7 @@ let
         "0.6.21" = sdk-0_6_21;
         "0.7.0-beta.8" = sdk-0_7_0-beta_8;
         "0.8.4" = sdk-0_8_4;
+        "0.9.2" = sdk-0_9_2;
       };
     in
       versions // { inherit makeVersion; }
