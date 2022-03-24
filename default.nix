@@ -41,6 +41,11 @@ let
                 "dfx-${version}.tar.gz"
               ];
             };
+            nativeBuildInputs = self.lib.optional self.stdenv.isLinux [
+              self.glibc.bin
+              self.patchelf
+              self.which
+            ];
             # Use `find $(dfx cache show) -type f -executable -print` on macOS to
             # help discover what to symlink.
             installPhase = ''
