@@ -45,6 +45,13 @@ let
             # help discover what to symlink.
             installPhase = ''
               export HOME=$TMP
+
+              ${self.lib.optionalString self.stdenv.isLinux ''
+              local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
+              chmod +rw ./dfx
+              patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
+              ''}
+
               ./dfx cache install
 
               mkdir -p $out/cache
