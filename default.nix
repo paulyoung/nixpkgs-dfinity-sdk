@@ -63,13 +63,19 @@ let
               cp --preserve=mode,timestamps -R $(./dfx cache show)/. $out/cache
 
               mkdir -p $out/bin
-              ln -s $out/cache/dfx $out/bin/dfx
-              ln -s $out/cache/ic-ref $out/bin/ic-ref
-              ln -s $out/cache/ic-starter $out/bin/ic-starter
-              ln -s $out/cache/mo-doc $out/bin/mo-doc
-              ln -s $out/cache/mo-ide $out/bin/mo-ide
-              ln -s $out/cache/moc $out/bin/moc
-              ln -s $out/cache/replica $out/bin/replica
+
+              for binary in dfx ic-ref ic-starter mo-doc mo-ide moc replica; do
+                ${self.lib.optionalString self.stdenv.isLinux ''
+                local BINARY="$out/cache/$binary"
+                test -f "$BINARY" || continue
+                local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
+                local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
+                chmod +rw "$BINARY"
+                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
+              ''}
+
+                ln -s $out/cache/$binary $out/bin/$binary
+              done
             '';
             system = resolvedSystem;
             inherit version;
