@@ -3,7 +3,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/21.11";
     flake-utils.url = "github:numtide/flake-utils";
     dfinity-sdk = {
-      url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      # url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      url = "../../";
       flake = false;
     };
   };

@@ -80,7 +80,8 @@ let
                 ln -s $out/cache/$binary $out/bin/$binary
               done
 
-              makeWrapper $out/cache/dfx $wrapperfile --set DFX_CONFIG_ROOT $out/cache
+              wrapProgram $out/cache/dfx --set DFX_CONFIG_ROOT $out/cache
+              rm $out/bin/dfx
               ln -s $out/cache/dfx $out/bin/dfx
             '';
             system = resolvedSystem;
