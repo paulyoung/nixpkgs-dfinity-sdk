@@ -1,0 +1,7 @@
+# DFINITY
+.dfx/
+
+
+# Nix
+result
+result-*
