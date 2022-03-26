@@ -33,6 +33,7 @@
           } ''
             cp ${./dfx.json} dfx.json
             dfx start --background
+            dfx deploy
             dfx stop
             touch $out
           '';
