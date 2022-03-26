@@ -41,23 +41,49 @@ let
                 "dfx-${version}.tar.gz"
               ];
             };
+            nativeBuildInputs = [
+              self.makeWrapper
+            ] ++ self.lib.optional self.stdenv.isLinux [
+              self.glibc.bin
+              self.patchelf
+              self.which
+            ];
             # Use `find $(dfx cache show) -type f -executable -print` on macOS to
             # help discover what to symlink.
             installPhase = ''
               export HOME=$TMP
+
+              ${self.lib.optionalString self.stdenv.isLinux ''
+              local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
+              local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
+              local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
+              chmod +rw ./dfx
+              test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
+              ''}
+
               ./dfx cache install
 
-              mkdir -p $out/cache
-              cp --preserve=mode,timestamps -R $(./dfx cache show)/. $out/cache
+              local CACHE_DIR="$out/.cache/dfinity/versions/${version}"
+              mkdir -p "$CACHE_DIR"
+              cp --preserve=mode,timestamps -R $(./dfx cache show)/. $CACHE_DIR
 
               mkdir -p $out/bin
-              ln -s $out/cache/dfx $out/bin/dfx
-              ln -s $out/cache/ic-ref $out/bin/ic-ref
-              ln -s $out/cache/ic-starter $out/bin/ic-starter
-              ln -s $out/cache/mo-doc $out/bin/mo-doc
-              ln -s $out/cache/mo-ide $out/bin/mo-ide
-              ln -s $out/cache/moc $out/bin/moc
-              ln -s $out/cache/replica $out/bin/replica
+
+              for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
+                ${self.lib.optionalString self.stdenv.isLinux ''
+                local BINARY="$CACHE_DIR/$binary"
+                test -f "$BINARY" || continue
+                local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
+                local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
+                chmod +rw "$BINARY"
+                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
+                ''}
+                ln -s $CACHE_DIR/$binary $out/bin/$binary
+              done
+
+              wrapProgram $CACHE_DIR/dfx --set DFX_CONFIG_ROOT $out
+              rm $out/bin/dfx
+              ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
             system = resolvedSystem;
             inherit version;

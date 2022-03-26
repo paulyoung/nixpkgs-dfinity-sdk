@@ -3,7 +3,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/21.11";
     flake-utils.url = "github:numtide/flake-utils";
     dfinity-sdk = {
-      url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      # url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      url = "../../";
       flake = false;
     };
   };
@@ -24,6 +25,18 @@
         })."0.8.4";
       in
         {
+          # `nix build`
+          defaultPackage = pkgs.runCommand "example" {
+            buildInputs = [
+              dfinitySdk
+            ];
+          } ''
+            cp ${./dfx.json} dfx.json
+            dfx start --background
+            dfx stop
+            touch $out
+          '';
+
           # `nix develop`
           devShell = pkgs.mkShell {
             buildInputs = [
