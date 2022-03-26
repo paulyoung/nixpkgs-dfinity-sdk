@@ -24,6 +24,15 @@
         })."0.8.4";
       in
         {
+          # `nix build`
+          defaultPackage = pkgs.runCommand "example" {
+            buildInputs = [
+              dfinitySdk
+            ];
+          } ''
+            touch $out
+          '';
+
           # `nix develop`
           devShell = pkgs.mkShell {
             buildInputs = [
