@@ -31,6 +31,8 @@
               dfinitySdk
             ];
           } ''
+            dfx start --background
+            dfx stop
             touch $out
           '';
 
