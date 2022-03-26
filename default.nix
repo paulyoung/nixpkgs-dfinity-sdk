@@ -63,26 +63,27 @@ let
 
               ./dfx cache install
 
-              mkdir -p $out/cache
-              cp --preserve=mode,timestamps -R $(./dfx cache show)/. $out/cache
+              local CACHE_DIR="$out/.cache/dfinity/versions/${version}"
+              mkdir -p "$CACHE_DIR"
+              cp --preserve=mode,timestamps -R $(./dfx cache show)/. $CACHE_DIR
 
               mkdir -p $out/bin
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
                 ${self.lib.optionalString self.stdenv.isLinux ''
-                local BINARY="$out/cache/$binary"
+                local BINARY="$CACHE_DIR/$binary"
                 test -f "$BINARY" || continue
                 local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
                 local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
                 chmod +rw "$BINARY"
                 test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
                 ''}
-                ln -s $out/cache/$binary $out/bin/$binary
+                ln -s $CACHE_DIR/$binary $out/bin/$binary
               done
 
-              wrapProgram $out/cache/dfx --set DFX_CONFIG_ROOT $out/cache
+              wrapProgram $CACHE_DIR/dfx --set DFX_CONFIG_ROOT $out
               rm $out/bin/dfx
-              ln -s $out/cache/dfx $out/bin/dfx
+              ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
             system = resolvedSystem;
             inherit version;
