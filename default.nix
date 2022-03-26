@@ -41,7 +41,9 @@ let
                 "dfx-${version}.tar.gz"
               ];
             };
-            nativeBuildInputs = self.lib.optional self.stdenv.isLinux [
+            nativeBuildInputs = [
+              self.makeWrapper
+            ] ++ self.lib.optional self.stdenv.isLinux [
               self.glibc.bin
               self.patchelf
               self.which
@@ -53,8 +55,10 @@ let
 
               ${self.lib.optionalString self.stdenv.isLinux ''
               local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
+              local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
+              local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
               chmod +rw ./dfx
-              patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
+              test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
               ''}
 
               ./dfx cache install
@@ -66,15 +70,18 @@ let
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
                 ${self.lib.optionalString self.stdenv.isLinux ''
-                local BINARY="$out/cache/''${binary}"
+                local BINARY="$out/cache/$binary"
                 test -f "$BINARY" || continue
-                local IS_STATIC=$(ldd "''${BINARY}" | grep 'not a dynamic executable')
-                local USE_LIB64=$(ldd "''${BINARY}" | grep '/lib64/ld-linux-x86-64.so.2')
-                chmod +rw "''${BINARY}"
-                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "''${LD_LINUX_SO}" "''${BINARY}"
+                local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
+                local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
+                chmod +rw "$BINARY"
+                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
                 ''}
                 ln -s $out/cache/$binary $out/bin/$binary
               done
+
+              makeWrapper $out/cache/dfx $wrapperfile --set DFX_CONFIG_ROOT $out/cache
+              ln -s $out/cache/dfx $out/bin/dfx
             '';
             system = resolvedSystem;
             inherit version;
