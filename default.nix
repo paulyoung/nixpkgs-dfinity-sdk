@@ -78,6 +78,7 @@ let
               rm $out/bin/dfx
               ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
+            dontPatchELF = true;
             system = resolvedSystem;
             inherit version;
           }
