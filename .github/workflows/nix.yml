@@ -4,7 +4,7 @@ on:
   push:
 jobs:
   nix:
-    name: Build flake example on ${{ matrix.os }}
+    name: ${{version}} on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
