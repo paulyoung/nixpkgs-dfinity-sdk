@@ -46,7 +46,7 @@ let
             installPhase = ''
               export HOME=$TMP
 
-              ${self.lib.optionalString (patchElf self.stdenv.isLinux) ''
+              ${self.lib.optionalString (patchElf && self.stdenv.isLinux) ''
               local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
               local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
               local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
