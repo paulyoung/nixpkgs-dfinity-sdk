@@ -151,6 +151,7 @@ let
       };
 
       sdk-0_9_2 = makeVersionFromManifest {
+        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             # sha256 = self.lib.fakeSha256;
