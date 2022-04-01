@@ -13,7 +13,7 @@ let
         then "x86_64-darwin"
         else sdkSystem;
 
-      makeVersion = { doPatch, systems, url, version }: (
+      makeVersion = { doPatch ? false, systems, url, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
             ""
@@ -84,10 +84,8 @@ let
           }
       );
 
-      makeVersionFromGitHubRelease = { systems, version }:
-        makeVersion {
-          inherit systems version;
-          doPatch = false;
+      makeVersionFromGitHubRelease = { version, ... }@args:
+        makeVersion (args // {
           url =  builtins.concatStringsSep "/" [
             "https://github.com"
             "dfinity"
@@ -97,13 +95,11 @@ let
             version
             "dfx-${version}-${resolvedSystem}.tar.gz"
           ];
-        }
+        })
       ;
 
-      makeVersionFromManifest = { systems, version }:
-        makeVersion {
-          inherit systems version;
-          doPatch = true;
+      makeVersionFromManifest = { version, ... }@args:
+        makeVersion (args // {
           url =  builtins.concatStringsSep "/" [
             "https://sdk.dfinity.org"
             "downloads"
@@ -112,10 +108,11 @@ let
             "${resolvedSystem}"
             "dfx-${version}.tar.gz"
           ];
-        }
+        })
       ;
 
       sdk-0_6_21 = makeVersionFromManifest {
+        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "0i92rwk5x13q7f7nyrgc896w2mlbk63lkgmlrvmyciwbggjiv4pc";
@@ -128,6 +125,7 @@ let
       };
 
       sdk-0_7_0-beta_8 = makeVersionFromManifest {
+        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "19zq8n5ahqmbyp1bvhzv06zfaimxyfgzvanwfkf5px7gb1jcqf0m";
@@ -140,6 +138,7 @@ let
       };
 
       sdk-0_8_4 = makeVersionFromManifest {
+        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "JJzZzUJtrgmKJdxXGVJedhP5t9maxh3YjIq1xhTcvfU=";
