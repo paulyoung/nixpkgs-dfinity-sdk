@@ -3,7 +3,7 @@ let
      overlays = import ./nix/overlays.nix;
    };
 
-  shell = { version ? "0.10.101", system ? builtins.currentSystem }:
+  shell = { version ? "0.9.3", system ? builtins.currentSystem }:
     let
       dfinitySdk = pkgs.dfinity-sdk {
         acceptLicenseAgreement = true;
