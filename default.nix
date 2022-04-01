@@ -13,7 +13,7 @@ let
         then "x86_64-darwin"
         else sdkSystem;
 
-      makeVersion = { systems, url, version }: (
+      makeVersion = { patchElf ? true, systems, url, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
             ""
@@ -36,7 +36,7 @@ let
             };
             nativeBuildInputs = [
               self.makeWrapper
-            ] ++ self.lib.optional self.stdenv.isLinux [
+            ] ++ self.lib.optional (patchElf && self.stdenv.isLinux) [
               self.glibc.bin
               self.patchelf
               self.which
@@ -46,7 +46,7 @@ let
             installPhase = ''
               export HOME=$TMP
 
-              ${self.lib.optionalString self.stdenv.isLinux ''
+              ${self.lib.optionalString (patchElf self.stdenv.isLinux) ''
               local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
               local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
               local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
@@ -63,7 +63,7 @@ let
               mkdir -p $out/bin
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
-                ${self.lib.optionalString self.stdenv.isLinux ''
+                ${self.lib.optionalString (patchElf && self.stdenv.isLinux) ''
                 local BINARY="$CACHE_DIR/$binary"
                 test -f "$BINARY" || continue
                 local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
@@ -86,6 +86,7 @@ let
       makeVersionFromGitHubRelease = { systems, version }:
         makeVersion {
           inherit systems version;
+          patchElf = false;
           url =  builtins.concatStringsSep "/" [
             "https://github.com"
             "dfinity"
