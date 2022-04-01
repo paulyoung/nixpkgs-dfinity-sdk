@@ -49,7 +49,9 @@ let
               ${self.lib.optionalString self.stdenv.isLinux ''
               local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
               local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
+              echo "$IS_STATIC"
               local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
+              echo "$USE_LIB64"
               chmod +rw ./dfx
               test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
               ''}
