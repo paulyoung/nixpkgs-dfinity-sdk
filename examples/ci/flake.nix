@@ -22,25 +22,46 @@
         dfinitySdk = (pkgs.dfinity-sdk {
           acceptLicenseAgreement = true;
           sdkSystem = system;
-        })."0.8.4";
-      in
-        {
-          # `nix build`
-          defaultPackage = pkgs.runCommand "example" {
+        });
+
+        mkPackage = version:
+          pkgs.runCommand "ci" {
+            nativeBuildInputs = [
+              pkgs.jq
+            ];
             buildInputs = [
-              dfinitySdk
+              dfinitySdk."${version}"
             ];
           } ''
-            cp ${./dfx.json} dfx.json
+            jq '.dfx = "${version}"' ${./dfx.json} > dfx.json
             dfx start --background
             dfx stop
             touch $out
-          '';
+          ''
+        ;
+
+        drvs =
+          pkgs.lib.attrsets.filterAttrs
+            (_name: value: pkgs.lib.attrsets.isDerivation value)
+            dfinitySdk
+        ;
+      in
+        {
+          # `nix build`
+          defaultPackage = mkPackage "latest";
+
+          packages =
+            pkgs.lib.attrsets.mapAttrs
+              (name: _value: mkPackage name)
+              drvs
+          ;
+
+          # packages."0.10.101" = mkPackage "0.10.101";
 
           # `nix develop`
           devShell = pkgs.mkShell {
             buildInputs = [
-              dfinitySdk
+              dfinitySdk.latest
             ];
           };
         }
