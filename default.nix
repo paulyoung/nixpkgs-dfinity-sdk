@@ -13,7 +13,7 @@ let
         then "x86_64-darwin"
         else sdkSystem;
 
-      makeVersion = { dontPatch, systems, url, version }: (
+      makeVersion = { doPatch, systems, url, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
             ""
@@ -63,7 +63,7 @@ let
               mkdir -p $out/bin
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
-                ${self.lib.optionalString (dontPatch && self.stdenv.isLinux) ''
+                ${self.lib.optionalString (doPatch && self.stdenv.isLinux) ''
                 local BINARY="$CACHE_DIR/$binary"
                 test -f "$BINARY" || continue
                 local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
@@ -87,7 +87,7 @@ let
       makeVersionFromGitHubRelease = { systems, version }:
         makeVersion {
           inherit systems version;
-          dontPatch = true;
+          doPatch = false;
           url =  builtins.concatStringsSep "/" [
             "https://github.com"
             "dfinity"
@@ -103,7 +103,7 @@ let
       makeVersionFromManifest = { systems, version }:
         makeVersion {
           inherit systems version;
-          dontPatch = false;
+          doPatch = true;
           url =  builtins.concatStringsSep "/" [
             "https://sdk.dfinity.org"
             "downloads"
