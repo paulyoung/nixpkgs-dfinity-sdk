@@ -1,6 +1,14 @@
 self: super:
 
 let
+  # Use newer version of patchelf to work around the error described in
+  # https://github.com/NixOS/patchelf/issues/255#issuecomment-907561501
+  patchelf = import (fetchTarball {
+    url = "https://github.com/NixOS/patchelf/archive/refs/tags/0.14.5.tar.gz";
+    # sha256 = self.lib.fakeSha256;
+    sha256 = "06h66ymlcwzklbp5183wj705q3s1idw2r3q5hh1jjndkp5lzy47y";
+  });
+
   error = message: builtins.throw ("[nixpkgs-dfinity-sdk] " + message);
 
   sdkAttrSet = {
@@ -37,8 +45,8 @@ let
             nativeBuildInputs = [
               self.makeWrapper
             ] ++ self.lib.optional self.stdenv.isLinux [
+              patchelf
               self.glibc.bin
-              self.patchelf
               self.which
             ];
             # Use `find $(dfx cache show) -type f -executable -print` on macOS to
@@ -48,10 +56,10 @@ let
 
               ${self.lib.optionalString self.stdenv.isLinux ''
               local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
-              local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
-              local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
+              local STANDALONE_IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
+              local STANDALONE_USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
               chmod +rw ./dfx
-              test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
+              test -n "$STANDALONE_IS_STATIC" || test -z "$STANDALONE_USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
               ''}
 
               ./dfx cache install
