@@ -4,12 +4,12 @@ on:
   push:
 jobs:
   nix:
-    name: ${{version}} on ${{ matrix.os }}
+    name: ${{matrix.version}} on ${{matrix.os}}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
         version: [0.8.4, 0.9.2, 0.10.101]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v2.4.0
     - uses: cachix/install-nix-action@v15
