@@ -186,7 +186,13 @@ let
         "0.10.101" = sdk-0_10_101;
       };
     in
-      versions // { inherit makeVersion makeVersionFromManifest; }
+      versions // {
+        inherit
+          makeVersion
+          makeVersionFromGitHubRelease
+          makeVersionFromManifest
+        ;
+      }
   );
 in
   {
