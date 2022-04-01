@@ -22,7 +22,7 @@
         dfinitySdk = (pkgs.dfinity-sdk {
           acceptLicenseAgreement = true;
           sdkSystem = system;
-        })."0.8.4";
+        })."0.10.101";
       in
         {
           # `nix build`
