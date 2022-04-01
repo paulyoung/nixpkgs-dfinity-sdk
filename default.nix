@@ -13,7 +13,7 @@ let
         then "x86_64-darwin"
         else sdkSystem;
 
-      makeVersion = { doPatch ? false, systems, url, version }: (
+      makeVersion = { systems, url, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
             ""
@@ -63,7 +63,7 @@ let
               mkdir -p $out/bin
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
-                ${self.lib.optionalString (doPatch && self.stdenv.isLinux) ''
+                ${self.lib.optionalString self.stdenv.isLinux ''
                 local BINARY="$CACHE_DIR/$binary"
                 test -f "$BINARY" || continue
                 local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
@@ -112,7 +112,6 @@ let
       ;
 
       sdk-0_6_21 = makeVersionFromManifest {
-        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "0i92rwk5x13q7f7nyrgc896w2mlbk63lkgmlrvmyciwbggjiv4pc";
@@ -125,7 +124,6 @@ let
       };
 
       sdk-0_7_0-beta_8 = makeVersionFromManifest {
-        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "19zq8n5ahqmbyp1bvhzv06zfaimxyfgzvanwfkf5px7gb1jcqf0m";
@@ -138,7 +136,6 @@ let
       };
 
       sdk-0_8_4 = makeVersionFromManifest {
-        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             sha256 = "JJzZzUJtrgmKJdxXGVJedhP5t9maxh3YjIq1xhTcvfU=";
@@ -151,7 +148,6 @@ let
       };
 
       sdk-0_9_2 = makeVersionFromManifest {
-        doPatch = true;
         systems = {
           "x86_64-darwin" = {
             # sha256 = self.lib.fakeSha256;
