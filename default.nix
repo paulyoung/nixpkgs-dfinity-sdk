@@ -179,7 +179,7 @@ let
 
       # https://sdk.dfinity.org/manifest.json
       versions = {
-        latest = sdk-0_8_4;
+        latest = sdk-0_10_101;
         "0.6.21" = sdk-0_6_21;
         "0.7.0-beta.8" = sdk-0_7_0-beta_8;
         "0.8.4" = sdk-0_8_4;
