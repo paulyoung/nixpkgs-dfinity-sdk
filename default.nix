@@ -63,6 +63,14 @@ let
               mkdir -p $out/bin
 
               for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
+                ${self.lib.optionalString self.stdenv.isLinux ''
+                local BINARY="$CACHE_DIR/$binary"
+                test -f "$BINARY" || continue
+                local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
+                local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
+                chmod +rw "$BINARY"
+                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
+                ''}
                 ln -s $CACHE_DIR/$binary $out/bin/$binary
               done
 
