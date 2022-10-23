@@ -4,12 +4,14 @@ on:
   push:
 jobs:
   nix:
-    name: Build flake example on ${{ matrix.os }}
+    name: ${{matrix.version}} on ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        version: [0.8.4, 0.9.3, 0.10.101]
+    runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v2.4.0
     - uses: cachix/install-nix-action@v15
-    - run: cd examples/flake && nix build --show-trace
+    - run: cd examples/ci && nix build '.#"${{matrix.version}}"' --show-trace

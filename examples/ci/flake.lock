@@ -3,17 +3,13 @@
     "dfinity-sdk": {
       "flake": false,
       "locked": {
-        "lastModified": 1648278992,
-        "narHash": "sha256-2dCMlzjebld3yrNXJ5uCN67/eOKSHt2OcUk1GA9jp5o=",
-        "owner": "paulyoung",
-        "repo": "nixpkgs-dfinity-sdk",
-        "rev": "8ea6347d42e4173767acb74e2c0ff45c4585616a",
-        "type": "github"
+        "narHash": "sha256-g+OEfBp2xVqFqBJt2W6I4pfyH49dHKxhP1tYLTGW2os=",
+        "path": "/nix/store/4bjs4nr86p9fj6mnv9kxnbyz8v6ivfzd-source",
+        "type": "path"
       },
       "original": {
-        "owner": "paulyoung",
-        "repo": "nixpkgs-dfinity-sdk",
-        "type": "github"
+        "path": "/nix/store/4bjs4nr86p9fj6mnv9kxnbyz8v6ivfzd-source",
+        "type": "path"
       }
     },
     "flake-utils": {

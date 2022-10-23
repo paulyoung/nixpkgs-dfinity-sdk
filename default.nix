@@ -13,7 +13,7 @@ let
         then "x86_64-darwin"
         else sdkSystem;
 
-      makeVersion = { systems, version }: (
+      makeVersion = { systems, url, version }: (
         if !acceptLicenseAgreement then
           error (builtins.concatStringsSep "\n" [
             ""
@@ -32,14 +32,7 @@ let
                 then systems.${resolvedSystem}.sha256
                 else error ("unsupported system: " + resolvedSystem);
               stripRoot = false;
-              url = builtins.concatStringsSep "/" [
-                "https://sdk.dfinity.org"
-                "downloads"
-                "dfx"
-                version
-                "${resolvedSystem}"
-                "dfx-${version}.tar.gz"
-              ];
+              url = url;
             };
             nativeBuildInputs = [
               self.makeWrapper
@@ -81,40 +74,54 @@ let
                 ln -s $CACHE_DIR/$binary $out/bin/$binary
               done
 
-              wrapProgram $CACHE_DIR/dfx --set DFX_CONFIG_ROOT $out
+              wrapProgram $CACHE_DIR/dfx --set DFX_CACHE_ROOT $out --set DFX_CONFIG_ROOT $TMP
               rm $out/bin/dfx
               ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
+            dontFixup = true;
             system = resolvedSystem;
             inherit version;
           }
       );
 
-      sdk-0_6_21 = makeVersion {
-        systems = {
-          "x86_64-darwin" = {
-            sha256 = "0i92rwk5x13q7f7nyrgc896w2mlbk63lkgmlrvmyciwbggjiv4pc";
-          };
-          "x86_64-linux" = {
-            sha256 = "06akn065x7vaqy56v5jn551zbw5a0wfxvn13q0hpskm2iwrwrpnb";
-          };
-        };
-        version = "0.6.21";
-      };
+      buildFromGitHub = { commit, ... }@args:
+        self.lib.fetchFromGitHub {
+          owner = "dfinity";
+          repo = "sdk";
+          rev = "f4e24bfee825b4023f85123583f470fc1846008d";
+          # sha256 = "FIXME";
+          sha256 = self.lib.fakeSha256;
+        }
+      ;
 
-      sdk-0_7_0-beta_8 = makeVersion {
-        systems = {
-          "x86_64-darwin" = {
-            sha256 = "19zq8n5ahqmbyp1bvhzv06zfaimxyfgzvanwfkf5px7gb1jcqf0m";
-          };
-          "x86_64-linux" = {
-            sha256 = "0nl29155076k23fx1j0zb92cr4p0dh8fk5cnjr67dy3nwlbygh3x";
-          };
-        };
-        version = "0.7.0-beta.8";
-      };
+      makeVersionFromGitHubRelease = { version, ... }@args:
+        makeVersion (args // {
+          url =  builtins.concatStringsSep "/" [
+            "https://github.com"
+            "dfinity"
+            "sdk"
+            "releases"
+            "download"
+            version
+            "dfx-${version}-${resolvedSystem}.tar.gz"
+          ];
+        })
+      ;
 
-      sdk-0_8_4 = makeVersion {
+      makeVersionFromManifest = { version, ... }@args:
+        makeVersion (args // {
+          url =  builtins.concatStringsSep "/" [
+            "https://sdk.dfinity.org"
+            "downloads"
+            "dfx"
+            version
+            "${resolvedSystem}"
+            "dfx-${version}.tar.gz"
+          ];
+        })
+      ;
+
+      sdk-0_8_4 = makeVersionFromManifest {
         systems = {
           "x86_64-darwin" = {
             sha256 = "JJzZzUJtrgmKJdxXGVJedhP5t9maxh3YjIq1xhTcvfU=";
@@ -126,30 +133,48 @@ let
         version = "0.8.4";
       };
 
-      sdk-0_9_2 = makeVersion {
+      sdk-0_9_3 = makeVersionFromManifest {
+        systems = {
+          "x86_64-darwin" = {
+            sha256 = "NMsETjzuZRVbnZ9slCmlHszB3GVrNGHBTKOZ6Y7EMEg=";
+          };
+          "x86_64-linux" = {
+            sha256 = "wuuPDC34nrFc/eUdAownsb/FQ3/C7UXh4phzwZf0yQs=";
+          };
+        };
+        version = "0.9.3";
+      };
+
+      sdk-0_10_101 = makeVersionFromGitHubRelease {
         systems = {
           "x86_64-darwin" = {
             # sha256 = self.lib.fakeSha256;
-            sha256 = "UITKzQ9XzlsyO4DU72Ah2VH8736eQeW8GL6hzJHTaYA=";
+            sha256 = "YspeY5M87yRwm2iild0aMOTpVz75TKDrb5wEl6co7vI=";
           };
           "x86_64-linux" = {
             # sha256 = self.lib.fakeSha256;
-            sha256 = "41NP4AGp5Ve1Srm9a2jweOEEu6iKDGJEBr+SYtrqUSM=";
+            sha256 = "OI2m4KHsVEpOnAqZRo6BXB7rK0B8ra+w5f/h1zBtfb0=";
           };
         };
-        version = "0.9.2";
+        version = "0.10.101";
       };
 
       # https://sdk.dfinity.org/manifest.json
       versions = {
-        latest = sdk-0_8_4;
-        "0.6.21" = sdk-0_6_21;
-        "0.7.0-beta.8" = sdk-0_7_0-beta_8;
+        #latest = sdk-0_9_3;
+        latest = sdk-0_10_101;
         "0.8.4" = sdk-0_8_4;
-        "0.9.2" = sdk-0_9_2;
+        "0.9.3" = sdk-0_9_3;
+        "0.10.101" = sdk-0_10_101;
       };
     in
-      versions // { inherit makeVersion; }
+      versions // {
+        inherit
+          makeVersion
+          makeVersionFromGitHubRelease
+          makeVersionFromManifest
+        ;
+      }
   );
 in
   {

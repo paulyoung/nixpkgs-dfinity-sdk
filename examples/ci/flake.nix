@@ -2,13 +2,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/21.11";
     flake-utils.url = "github:numtide/flake-utils";
-
     dfinity-sdk = {
-      # url = "github:paulyoung/nixpkgs-dfinity-sdk?rev=28bb54dc1912cd723dc15f427b67c5309cfe851e";
-      url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      # url = "github:paulyoung/nixpkgs-dfinity-sdk";
+      url = "../../";
       flake = false;
     };
-
   };
 
   outputs = { self, nixpkgs, flake-utils, dfinity-sdk }:
@@ -24,41 +22,47 @@
         dfinitySdk = (pkgs.dfinity-sdk {
           acceptLicenseAgreement = true;
           sdkSystem = system;
-        # })."0.9.3";
-        }).makeVersion {
-          systems = {
-            "x86_64-darwin" = {
-              sha256 = "sha256-0dmrknkFJ5UrGYqL2aH6xuUPJFlY6ae+4faHeF5rJBw=";
-            };
-            "x86_64-linux" = {
-              sha256 = pkgs.lib.fakeSha256;
-            };
-          };
-          version = "0.11.2";
-        };
+        });
 
-      in
-        {
-          # `nix build`
-          defaultPackage = pkgs.runCommand "example" {
+        mkPackage = version:
+          pkgs.runCommand "ci" {
+            nativeBuildInputs = [
+              pkgs.jq
+            ];
             buildInputs = [
-              dfinitySdk
+              dfinitySdk."${version}"
             ];
           } ''
-            HOME=$TMP
             trap "dfx stop" EXIT
-            cp ${./dfx.json} dfx.json
+            jq '.dfx = "${version}"' ${./dfx.json} > dfx.json
             dfx start --background --host 127.0.0.1:0
             WEBSERVER_PORT=$(cat .dfx/webserver-port)
             # dfx deploy --network "http://127.0.0.1:$WEBSERVER_PORT"
             dfx stop
             touch $out
-          '';
+          ''
+        ;
+
+        drvs =
+          pkgs.lib.attrsets.filterAttrs
+            (_name: value: pkgs.lib.attrsets.isDerivation value)
+            dfinitySdk
+        ;
+      in
+        rec {
+          # `nix build`
+          defaultPackage = packages."0.10.101";
+
+          packages =
+            pkgs.lib.attrsets.mapAttrs
+              (name: _value: mkPackage name)
+              drvs
+          ;
 
           # `nix develop`
           devShell = pkgs.mkShell {
             buildInputs = [
-              dfinitySdk
+              dfinitySdk.latest
             ];
           };
         }
