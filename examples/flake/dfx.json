@@ -1,6 +1,23 @@
 {
   "version": 1,
-  "dfx": "0.9.3",
+  "dfx": "0.11.2",
+  "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "wasm": "result-remote/internet_identity/internet_identity_dev.wasm",
+      "candid": "result-remote/internet_identity/internet_identity.did",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
+    }
+  },
+  "ic": {
+    "providers": [
+      "https://ic0.app"
+    ]
+  },
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

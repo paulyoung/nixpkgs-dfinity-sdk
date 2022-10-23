@@ -74,7 +74,7 @@ let
                 ln -s $CACHE_DIR/$binary $out/bin/$binary
               done
 
-              wrapProgram $CACHE_DIR/dfx --set DFX_CONFIG_ROOT $out
+              wrapProgram $CACHE_DIR/dfx --set DFX_CACHE_ROOT $out --set DFX_CONFIG_ROOT $TMP
               rm $out/bin/dfx
               ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
