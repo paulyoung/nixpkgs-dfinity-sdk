@@ -3,12 +3,12 @@
     "dfinity-sdk": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-LAyxeaAQIDaKdmPlEIiivPM69wzuX/EBng7ya2wvH0g=",
-        "path": "/nix/store/q8kb7vi361fb4rfcif8d7ihnb8hz5gm4-source",
+        "narHash": "sha256-g+OEfBp2xVqFqBJt2W6I4pfyH49dHKxhP1tYLTGW2os=",
+        "path": "/nix/store/4bjs4nr86p9fj6mnv9kxnbyz8v6ivfzd-source",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/q8kb7vi361fb4rfcif8d7ihnb8hz5gm4-source",
+        "path": "/nix/store/4bjs4nr86p9fj6mnv9kxnbyz8v6ivfzd-source",
         "type": "path"
       }
     },

@@ -84,6 +84,16 @@ let
           }
       );
 
+      buildFromGitHub = { commit, ... }@args:
+        self.lib.fetchFromGitHub {
+          owner = "dfinity";
+          repo = "sdk";
+          rev = "f4e24bfee825b4023f85123583f470fc1846008d";
+          # sha256 = "FIXME";
+          sha256 = self.lib.fakeSha256;
+        }
+      ;
+
       makeVersionFromGitHubRelease = { version, ... }@args:
         makeVersion (args // {
           url =  builtins.concatStringsSep "/" [
@@ -151,7 +161,8 @@ let
 
       # https://sdk.dfinity.org/manifest.json
       versions = {
-        latest = sdk-0_9_3;
+        #latest = sdk-0_9_3;
+        latest = sdk-0_10_101;
         "0.8.4" = sdk-0_8_4;
         "0.9.3" = sdk-0_9_3;
         "0.10.101" = sdk-0_10_101;

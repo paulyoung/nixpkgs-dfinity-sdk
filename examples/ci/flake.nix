@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, dfinity-sdk }:
-    flake-utils.lib.eachDefaultSystem (
+    flake-utils.lib.eachSystem ["aarch64-darwin" "x86_64-darwin" "x86_64-linux"] (
       system: let
         pkgs = import nixpkgs {
           inherit system;
@@ -33,8 +33,11 @@
               dfinitySdk."${version}"
             ];
           } ''
+            trap "dfx stop" EXIT
             jq '.dfx = "${version}"' ${./dfx.json} > dfx.json
-            dfx start --background
+            dfx start --background --host 127.0.0.1:0
+            WEBSERVER_PORT=$(cat .dfx/webserver-port)
+            # dfx deploy --network "http://127.0.0.1:$WEBSERVER_PORT"
             dfx stop
             touch $out
           ''
@@ -46,17 +49,15 @@
             dfinitySdk
         ;
       in
-        {
+        rec {
           # `nix build`
-          defaultPackage = mkPackage "latest";
+          defaultPackage = packages."0.10.101";
 
           packages =
             pkgs.lib.attrsets.mapAttrs
               (name: _value: mkPackage name)
               drvs
           ;
-
-          # packages."0.10.101" = mkPackage "0.10.101";
 
           # `nix develop`
           devShell = pkgs.mkShell {

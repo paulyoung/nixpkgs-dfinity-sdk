@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, dfinity-sdk }:
-    flake-utils.lib.eachDefaultSystem (
+    flake-utils.lib.eachSystem ["aarch64-darwin" "x86_64-darwin" "x86_64-linux"] (
       system: let
         pkgs = import nixpkgs {
           inherit system;
@@ -31,8 +31,11 @@
               dfinitySdk
             ];
           } ''
+            trap "dfx stop" EXIT
             cp ${./dfx.json} dfx.json
-            dfx start --background
+            dfx start --background --host 127.0.0.1:0
+            WEBSERVER_PORT=$(cat .dfx/webserver-port)
+            # dfx deploy --network "http://127.0.0.1:$WEBSERVER_PORT"
             dfx stop
             touch $out
           '';
