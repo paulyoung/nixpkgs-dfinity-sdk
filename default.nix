@@ -140,13 +140,28 @@ let
         version = "0.9.2";
       };
 
+      sdk-0_13_1 = makeVersion {
+        systems = {
+          "x86_64-darwin" = {
+            sha256 = self.lib.fakeSha256;
+            # sha256 = "UITKzQ9Xzlsy00DU72Ah2VH8736eQeW8GL6hzJHTaYA=";
+          };
+          "x86_64-linux" = {
+            # sha256 = self.lib.fakeSha256;
+            sha256 = "sha256-JQ1BKzqO291oZ5W8LCcbb4VTTStESV3WCMZwOby251Y=";
+          };
+        };
+        version = "0.13.1";
+      };
+
       # https://sdk.dfinity.org/manifest.json
       versions = {
-        latest = sdk-0_8_4;
+        latest = sdk-0_13_1;
         "0.6.21" = sdk-0_6_21;
         "0.7.0-beta.8" = sdk-0_7_0-beta_8;
         "0.8.4" = sdk-0_8_4;
         "0.9.2" = sdk-0_9_2;
+        "0.13.1" = sdk-0_13_1;
       };
     in
       versions // { inherit makeVersion; }
