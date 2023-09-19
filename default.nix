@@ -47,20 +47,19 @@ let
               self.glibc.bin
               self.patchelf
               self.which
+              self.autoPatchelfHook
+            ];
+            buildInputs = [
+              self.stdenv.cc.cc.lib
+              self.libunwind
             ];
             # Use `find $(dfx cache show) -type f -executable -print` on macOS to
             # help discover what to symlink.
             installPhase = ''
               export HOME=$TMP
 
-              ${self.lib.optionalString self.stdenv.isLinux ''
-              local LD_LINUX_SO=$(ldd $(which iconv)|grep ld-linux-x86|cut -d' ' -f3)
-              local IS_STATIC=$(ldd ./dfx | grep 'not a dynamic executable')
-              local USE_LIB64=$(ldd ./dfx | grep '/lib64/ld-linux-x86-64.so.2')
               chmod +rw ./dfx
-              test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" ./dfx
-              ''}
-
+              autoPatchelf .
               ./dfx cache install
 
               local CACHE_DIR="$out/.cache/dfinity/versions/${version}"
@@ -69,19 +68,13 @@ let
 
               mkdir -p $out/bin
 
-              for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica; do
-                ${self.lib.optionalString self.stdenv.isLinux ''
-                local BINARY="$CACHE_DIR/$binary"
-                test -f "$BINARY" || continue
-                local IS_STATIC=$(ldd "$BINARY" | grep 'not a dynamic executable')
-                local USE_LIB64=$(ldd "$BINARY" | grep '/lib64/ld-linux-x86-64.so.2')
-                chmod +rw "$BINARY"
-                test -n "$IS_STATIC" || test -z "$USE_LIB64" || patchelf --set-interpreter "$LD_LINUX_SO" "$BINARY"
-                ''}
+              addAutoPatchelfSearchPath $CACHE_DIR
+
+              for binary in dfx ic-ref ic-starter icx-proxy mo-doc mo-ide moc replica ; do
                 ln -s $CACHE_DIR/$binary $out/bin/$binary
               done
 
-              wrapProgram $CACHE_DIR/dfx --set DFX_CONFIG_ROOT $out
+              wrapProgram $CACHE_DIR/dfx --set DFX_CACHE_ROOT $out
               rm $out/bin/dfx
               ln -s $CACHE_DIR/dfx $out/bin/dfx
             '';
@@ -140,13 +133,28 @@ let
         version = "0.9.2";
       };
 
+      sdk-0_15_0 = makeVersion {
+        systems = {
+          "x86_64-darwin" = {
+            sha256 = self.lib.fakeSha256;
+            # sha256 = "UITKzQ9Xzlsy00DU72Ah2VH8736eQeW8GL6hzJHTaYA=";
+          };
+          "x86_64-linux" = {
+            # sha256 = self.lib.fakeSha256;
+            sha256 = "sha256-P24J31kL9eNEtiDpegGatLdMtnj2otxrKRddWEXe7kc=";
+          };
+        };
+        version = "0.15.0";
+      };
+
       # https://sdk.dfinity.org/manifest.json
       versions = {
-        latest = sdk-0_8_4;
+        latest = sdk-0_15_0;
         "0.6.21" = sdk-0_6_21;
         "0.7.0-beta.8" = sdk-0_7_0-beta_8;
         "0.8.4" = sdk-0_8_4;
         "0.9.2" = sdk-0_9_2;
+        "0.15.0" = sdk-0_15_0;
       };
     in
       versions // { inherit makeVersion; }
